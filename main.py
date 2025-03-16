@@ -1,128 +1,119 @@
 import streamlit as st
 import pandas as pd
-import matchingAlgo  # Import the custom module
+import matchingAlgo
 import matplotlib.pyplot as plt
-import calendarInvite  # Import the new module
+import calendarInvite
 
-def clear_all():
-    """Clears all session state variables to restart the app."""
-    st.session_state.candidate_schedules = []
-    st.session_state.recruiter_schedules = []
-    st.session_state.cand_finished = False
-    st.session_state.rec_finished = False
-    st.session_state.cand_email = ""
-    st.session_state.cand_start = None
-    st.session_state.cand_end = None
-    st.session_state.rec_email = ""
-    st.session_state.rec_start = None
-    st.session_state.rec_end = None
+def reset_session_state():
+    """Resets all session state variables to restart the app."""
+    st.session_state.candidate_availability = []
+    st.session_state.recruiter_availability = []
+    st.session_state.is_candidate_done = False
+    st.session_state.is_recruiter_done = False
+    st.session_state.candidate_email = ""
+    st.session_state.candidate_start_time = None
+    st.session_state.candidate_end_time = None
+    st.session_state.recruiter_email = ""
+    st.session_state.recruiter_start_time = None
+    st.session_state.recruiter_end_time = None
 
 def main():
     st.title("Interview Scheduler")
 
-    # Initialize session state variables if not set
-    if "candidate_schedules" not in st.session_state:
-        st.session_state.candidate_schedules = []
-    if "recruiter_schedules" not in st.session_state:
-        st.session_state.recruiter_schedules = []
-    if "cand_finished" not in st.session_state:
-        st.session_state.cand_finished = False
-    if "rec_finished" not in st.session_state:
-        st.session_state.rec_finished = False
+    if "candidate_availability" not in st.session_state:
+        st.session_state.candidate_availability = []
+    if "recruiter_availability" not in st.session_state:
+        st.session_state.recruiter_availability = []
+    if "is_candidate_done" not in st.session_state:
+        st.session_state.is_candidate_done = False
+    if "is_recruiter_done" not in st.session_state:
+        st.session_state.is_recruiter_done = False
 
-    # Clear All Button
-    if st.button("Clear All Data"):
-        clear_all()
+    if st.button("Reset All Data"):
+        reset_session_state()
         st.rerun()
 
     col1, col2 = st.columns(2)
 
     with col1:
-        st.header("Candidate")
-        candidate_email = st.text_input("Candidate Email", key="cand_email")
+        st.header("Candidate Availability")
+        candidate_email = st.text_input("Candidate Email Address", key="candidate_email")
         start_col, end_col = st.columns(2)
         with start_col:
-            candidate_start = st.time_input("Start Time", key="cand_start")
+            candidate_start_time = st.time_input("Available From", key="candidate_start_time")
         with end_col:
-            candidate_end = st.time_input("End Time", key="cand_end")
+            candidate_end_time = st.time_input("Available Until", key="candidate_end_time")
 
-        if st.button("Add Candidate Schedule", key="cand_add"):
-            if candidate_email and candidate_start and candidate_end:
-                st.session_state.candidate_schedules.append((candidate_email, candidate_start, candidate_end))
-                st.success("Candidate schedule added!")
+        if st.button("Add Candidate Availability", key="add_candidate"):
+            if candidate_email and candidate_start_time and candidate_end_time:
+                st.session_state.candidate_availability.append(
+                    (candidate_email, candidate_start_time, candidate_end_time)
+                )
+                st.success("Candidate availability added!")
 
     with col2:
-        st.header("Recruiter")
-        recruiter_email = st.text_input("Recruiter Email", key="rec_email")
+        st.header("Recruiter Availability")
+        recruiter_email = st.text_input("Recruiter Email Address", key="recruiter_email")
         start_col, end_col = st.columns(2)
         with start_col:
-            recruiter_start = st.time_input("Start Time", key="rec_start")
+            recruiter_start_time = st.time_input("Available From", key="recruiter_start_time")
         with end_col:
-            recruiter_end = st.time_input("End Time", key="rec_end")
+            recruiter_end_time = st.time_input("Available Until", key="recruiter_end_time")
 
-        if st.button("Add Recruiter Schedule", key="rec_add"):
-            if recruiter_email and recruiter_start and recruiter_end:
-                st.session_state.recruiter_schedules.append((recruiter_email, recruiter_start, recruiter_end))
-                st.success("Recruiter schedule added!")
+        if st.button("Add Recruiter Availability", key="add_recruiter"):
+            if recruiter_email and recruiter_start_time and recruiter_end_time:
+                st.session_state.recruiter_availability.append(
+                    (recruiter_email, recruiter_start_time, recruiter_end_time)
+                )
+                st.success("Recruiter availability added!")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        if st.button("Candidate Finish", key="cand_finish"):
-            st.session_state.cand_finished = True
+        if st.button("Candidate Submission Complete", key="finalize_candidate"):
+            st.session_state.is_candidate_done = True
 
     with col2:
-        if st.button("Recruiter Finish", key="rec_finish"):
-            st.session_state.rec_finished = True
+        if st.button("Recruiter Submission Complete", key="finalize_recruiter"):
+            st.session_state.is_recruiter_done = True
 
-    if st.session_state.cand_finished and st.session_state.rec_finished:
-        schedule_data = []
-        for email, start, end in st.session_state.candidate_schedules:
-            schedule_data.append(["Candidate", email, start, end])
-        for email, start, end in st.session_state.recruiter_schedules:
-            schedule_data.append(["Recruiter", email, start, end])
+    if st.session_state.is_candidate_done and st.session_state.is_recruiter_done:
+        schedule_data = [
+            ["Candidate", email, start, end] for email, start, end in st.session_state.candidate_availability
+        ] + [
+            ["Recruiter", email, start, end] for email, start, end in st.session_state.recruiter_availability
+        ]
 
         if schedule_data:
-            df = pd.DataFrame(schedule_data, columns=["Role", "Email", "Start Time", "End Time"])
-            st.write("### Scheduled Interview Details")
+            df = pd.DataFrame(schedule_data, columns=["Role", "Email", "Available From", "Available Until"])
+            st.write("### Scheduled Interview Availability")
             st.dataframe(df)
 
-        # 🔹 Construct Bipartite Graph (Ensure dicts are returned)
-        G, recruiters_dict, candidates_dict = matchingAlgo.construct_bipartite_graph(
-            st.session_state.recruiter_schedules,
-            st.session_state.candidate_schedules
+        G, recruiter_dict, candidate_dict = matchingAlgo.construct_bipartite_graph(
+            st.session_state.recruiter_availability, st.session_state.candidate_availability
         )
 
         if G.number_of_edges() == 0:
-            print("No valid matches found. Skipping matching algorithm.")
             st.warning("No valid interview slots found.")
             return
 
         st.write("### Bipartite Graph Representation")
         fig, ax = plt.subplots()
-        matchingAlgo.plot_bipartite_graph(G, recruiters_dict, candidates_dict, ax)
+        matchingAlgo.plot_bipartite_graph(G, recruiter_dict, candidate_dict, ax)
         st.pyplot(fig)
 
-        # 🔹 Apply Matching Algorithm (Hopcroft-Karp)
-        matching, recruiters_dict, candidates_dict = matchingAlgo.find_optimal_matching(G, recruiters_dict, candidates_dict)
+        matching, recruiter_dict, candidate_dict = matchingAlgo.find_optimal_matching(G, recruiter_dict, candidate_dict)
 
-        # 🔹 Apply Greedy Scheduling
-        final_schedule = matchingAlgo.greedy_time_slot_assignment(
-            matching,
-            recruiters_dict,  # ✅ Pass correct dict
-            candidates_dict   # ✅ Pass correct dict
-        )
+        final_schedule = matchingAlgo.greedy_time_slot_assignment(matching, recruiter_dict, candidate_dict)
 
-        # 🔹 Display Final Interview Schedule
         if final_schedule:
             st.write("### Final Interview Schedule")
-            final_df = pd.DataFrame(final_schedule, columns=["Recruiter", "Candidate", "Start Time", "End Time"])
+            final_df = pd.DataFrame(final_schedule, columns=["Recruiter", "Candidate", "Interview Start", "Interview End"])
             st.dataframe(final_df)
 
-            # 🔹 Send Calendar Invites
-            if st.button("Send Calendar Invites"):
+            if st.button("Send Calendar Invitations"):
                 calendarInvite.send_invites(final_schedule)
-                st.success("Calendar invites sent successfully!")
+                st.success("Calendar invitations sent successfully!")
         else:
             st.warning("No valid interview slots found.")
 

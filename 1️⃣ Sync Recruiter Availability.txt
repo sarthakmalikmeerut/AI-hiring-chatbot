@@ -1,116 +1,40 @@
 1️⃣ Sync Recruiter Availability
-   ├── Fetch recruiter schedules via Google/Microsoft Calendar API
-   ├── Store recruiter time slots in a structured database
-   └── Move to the next step
+├── Recruiters manually input their available time slots via the Streamlit UI
+├── Store recruiter time slots in st.session_state.recruiter_schedules
+└── Move to the next step
 
 2️⃣ Fetch Candidate Availability
-   ├── Collect availability via Google Forms / Web Form
-   ├── Validate responses and clean the data
-   ├── Store availability in a structured format (e.g., Pandas DataFrame, SQL)
-   └── Move to the next step
+├── Candidates manually input their available time slots via the Streamlit UI
+├── Validate responses and store data in st.session_state.candidate_schedules
+├── Once all candidate inputs are received, mark cand_finished = True
+└── Move to the next step
 
 3️⃣ Construct Bipartite Graph
-   ├── Define two sets of nodes:
-   │     ├── Set 1: Recruiters
-   │     ├── Set 2: Candidates
-   ├── Create edges based on overlapping time slots
-   └── Move to the next step
+├── Define two sets of nodes:
+│ ├── Set 1: Recruiters
+│ ├── Set 2: Candidates
+├── Create edges based on overlapping time slots
+├── If no valid matches are found, display a warning and stop execution
+└── Move to the next step
 
 4️⃣ Apply Bipartite Matching Algorithm
-   ├── Use an efficient matching algorithm:
-   │     ├── Hungarian Algorithm (if we need an optimal solution)
-   │     ├── Hopcroft-Karp Algorithm (for maximum cardinality matching)
-   ├── Assign candidates to recruiters
-   ├── If all candidates are assigned, move to the next step
-   ├── If some candidates are unassigned, return to Step 2 (request new availability)
-   └── Move to the next step
+├── Use the Hopcroft-Karp Algorithm for maximum matching
+├── Assign candidates to recruiters based on available slots
+├── If all candidates are assigned, move to the next step
+├── If some candidates remain unassigned, display a warning
+└── Move to the next step
 
 5️⃣ Greedy Scheduling for Time Slot Assignment
-   ├── Sort available time slots for each recruiter
-   ├── Assign the **earliest available slot** to the first matched candidate
-   ├── Repeat for all candidates:
-   │     ├── If a slot is available, assign it
-   │     ├── If no slot is available, reschedule or send rejection email
-   └── Move to the next step
+├── Sort available time slots for each recruiter
+├── Assign the earliest available slot to each matched candidate
+├── If a slot is available, assign it
+├── If no slot is available, display a warning
+└── Move to the next step
 
-6️⃣ Send Calendar Invites
-   ├── Generate Google/Outlook Calendar API requests
-   ├── Send invites to matched recruiters & candidates
-   ├── Notify both parties via email
-   ├── Log all scheduled meetings
-   └── End Process
-1️⃣ Sync Recruiter Availability
-   ├── Fetch recruiter schedules via Google/Microsoft Calendar API
-   ├── Store recruiter time slots in a structured database
-   └── Move to the next step
-
-2️⃣ Fetch Candidate Availability
-   ├── Collect availability via Google Forms / Web Form
-   ├── Validate responses and clean the data
-   ├── Store availability in a structured format (e.g., Pandas DataFrame, SQL)
-   └── Move to the next step
-
-3️⃣ Construct Bipartite Graph
-   ├── Define two sets of nodes:
-   │     ├── Set 1: Recruiters
-   │     ├── Set 2: Candidates
-   ├── Create edges based on overlapping time slots
-   └── Move to the next step
-
-4️⃣ Apply Bipartite Matching Algorithm
-   ├── Use an efficient matching algorithm:
-   │     ├── Hungarian Algorithm (if we need an optimal solution)
-   │     ├── Hopcroft-Karp Algorithm (for maximum cardinality matching)
-   ├── Assign candidates to recruiters
-   ├── If all candidates are assigned, move to the next step
-   ├── If some candidates are unassigned, return to Step 2 (request new availability)
-   └── Move to the next step
-
-5️⃣ Greedy Scheduling for Time Slot Assignment
-   ├── Sort available time slots for each recruiter
-   ├── Assign the **earliest available slot** to the first matched candidate
-   ├── Repeat for all candidates:
-   │     ├── If a slot is available, assign it
-   │     ├── If no slot is available, reschedule or send rejection email
-   └── Move to the next step
-
-6️⃣ Send Calendar Invites
-   ├── Generate Google/Outlook Calendar API requests
-   ├── Send invites to matched recruiters & candidates
-   ├── Notify both parties via email
-   ├── Log all scheduled meetings
-   └── End Process
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-4️⃣ Apply Bipartite Matching Algorithm
-What to do?
-
-Implement a matching algorithm (Hungarian or Hopcroft-Karp).
-Find optimal recruiter-candidate assignments.
-Use scipy.optimize.linear_sum_assignment (Hungarian Algorithm) or networkx.algorithms.bipartite.maximum_matching (Hopcroft-Karp).
-5️⃣ Greedy Scheduling for Time Slot Assignment
-What to do?
-
-Sort time slots for recruiters.
-Assign candidates based on the earliest available slot.
-Handle conflicts (reschedule, send rejection).
-6️⃣ Send Calendar Invites
-What to do?
-
-Use Google/Outlook Calendar API to send invites.
-Generate and send confirmation emails.
+6️⃣ Display Final Schedule & Send Calendar Invites
+├── Display the final schedule in a DataFrame
+├── If a user clicks "Send Calendar Invites", trigger Google/Outlook API
+├── Send invites to matched recruiters & candidates
+├── Notify both parties via email
+├── Log all scheduled meetings
+└── End Process

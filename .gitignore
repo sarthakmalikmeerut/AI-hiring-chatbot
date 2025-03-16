@@ -1,0 +1,18 @@
+# Ignore Python cache files
+__pycache__/
+
+# Ignore JetBrains (PyCharm) project files
+.idea/
+
+# Ignore virtual environments
+.venv/
+
+# Ignore PowerPoint files
+*.pptx
+
+# Ignore Excel files
+*.xlsx
+*.xls
+
+# Ignore text files
+*.txt
