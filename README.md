@@ -44,7 +44,7 @@ google-api-python-client
 ## How to Run the Program
 Execute the following command in the terminal:
 ```sh
-streamlit run app.py
+streamlit run main.py
 ```
 
 This will launch the Streamlit web application in your default browser.
