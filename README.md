@@ -1,6 +1,4 @@
-Here’s the `README.md` with the **correct run command** included:  
 
-```md
 # **Interview Scheduler**
 
 ## **Overview**
@@ -69,4 +67,3 @@ streamlit run main.py
 ---
 
 🚀 **Happy Scheduling!** 🚀
-```
