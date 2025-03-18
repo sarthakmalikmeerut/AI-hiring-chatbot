@@ -8,12 +8,6 @@ import pytz
 
 
 def shorten_url(long_url):
-    """
-    Shortens a URL using TinyURL API.
-
-    :param long_url: The original long URL
-    :return: Shortened URL
-    """
     try:
         response = requests.get(f"https://tinyurl.com/api-create.php?url={quote(long_url)}")
         if response.status_code == 200:
@@ -21,62 +15,44 @@ def shorten_url(long_url):
         else:
             return long_url  # Fallback to original URL if shortening fails
     except Exception as e:
-        print(f"❌ Error shortening URL: {e}")
+        print(f"Error shortening URL: {e}")
         return long_url
 
 
 def generate_calendar_link(start_time, end_time, recruiter, candidate):
-    """
-    Generates a shortened Google Calendar invite link.
 
-    :param start_time: Interview start time (IST, datetime object)
-    :param end_time: Interview end time (IST, datetime object)
-    :param recruiter: Recruiter's email
-    :param candidate: Candidate's email
-    :return: Shortened Google Calendar event link
-    """
     base_url = "https://calendar.google.com/calendar/render?action=TEMPLATE"
 
     event_title = "Interview Scheduled"
     description = f"Interview between {recruiter} and {candidate}."
     location = "Google Meet"
 
-    # Convert IST time to UTC
     ist = pytz.timezone("Asia/Kolkata")
 
-    selected_date = date.today()  # You can modify this to take input from the user
+    selected_date = date.today() 
 
-    # Correctly combine date and time
     start_datetime = datetime.combine(selected_date, start_time).replace(tzinfo=ist)
     end_datetime = datetime.combine(selected_date, end_time).replace(tzinfo=ist)
 
-    # Convert to UTC
     start_utc = start_datetime.astimezone(pytz.utc)
     end_utc = end_datetime.astimezone(pytz.utc)
 
-    # Format times in Google Calendar format (UTC)
     start_str = start_utc.strftime('%Y%m%dT%H%M%SZ')
     end_str = end_utc.strftime('%Y%m%dT%H%M%SZ')
 
-    # Construct full Google Calendar URL
     calendar_link = (f"{base_url}"
                      f"&text={quote(event_title)}"
                      f"&details={quote(description)}"
                      f"&location={quote(location)}"
                      f"&dates={start_str}/{end_str}")
 
-    # Shorten the URL
     return shorten_url(calendar_link)
 
 
 def send_invites(final_schedule):
-    """
-    Sends interview invitations via email with a Google Calendar event link.
-
-    :param final_schedule: List of tuples (Recruiter Email, Candidate Email, Start Time, End Time)
-    """
+    
     sender_email = "sarthakmalikmeerut@gmail.com"
-    sender_password = "gsqk cbvt dgnv kzmm"  # Use App Password if 2FA is enabled
+    sender_password = "gsqk cbvt dgnv kzmm"  
 
     for recruiter, candidate, start_time, end_time in final_schedule:
         # Generate a shortened Google Calendar event link
@@ -116,6 +92,6 @@ def send_invites(final_schedule):
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, recipients, msg.as_string())  # Send email
             server.quit()
-            print(f"✅ Interview invite sent to {recruiter} and {candidate}")
+            print(f"Interview invite sent to {recruiter} and {candidate}")
         except Exception as e:
-            print(f"❌ Error sending invite: {e}")
+            print(f"Error sending invite: {e}")
