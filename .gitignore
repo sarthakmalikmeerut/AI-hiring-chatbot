@@ -9,9 +9,6 @@ ignore_folder/
 # Ignore virtual environments
 .venv/
 
-# Ignore PowerPoint files
-*.pptx
-
 # Ignore Excel files
 *.xlsx
 *.xls
